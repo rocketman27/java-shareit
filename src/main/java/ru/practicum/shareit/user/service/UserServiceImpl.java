@@ -17,11 +17,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
+import static ru.practicum.shareit.user.UserMapper.toUserDto;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private static long nextId = 1;
     private final Map<Long, String> uniqueEmails = new HashMap<>();
     private final UserRepository userRepository;
 
@@ -32,13 +32,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(long userId) {
-        Optional<User> user = userRepository.getUserById(userId);
-        if (user.isPresent()) {
-            return UserMapper.toUserDto(user.get());
-        } else {
-            throw new UserNotFoundException(format("User with userId=%s is not found", userId));
-        }
-
+        return toUserDto(userRepository.getUserById(userId)
+                                       .orElseThrow(() -> new UserNotFoundException(format("User with userId=%s is not found", userId)))
+        );
     }
 
     @Override
@@ -55,11 +51,10 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyExistsException(format("Email address %s already exists", userDto.getEmail()));
         }
 
-        userDto.setId(nextId++);
         User user = UserMapper.toUser(userDto);
+        user = userRepository.createUser(user);
         uniqueEmails.put(user.getId(), user.getEmail());
-
-        return UserMapper.toUserDto(userRepository.createUser(user));
+        return UserMapper.toUserDto(user);
     }
 
     @Override
@@ -82,7 +77,7 @@ public class UserServiceImpl implements UserService {
                 }
             });
             userRepository.updateUser(user.get());
-            return UserMapper.toUserDto(user.get());
+            return toUserDto(user.get());
         } else {
             throw new UserNotFoundException(format("User with userId=%s is not found", userId));
         }

@@ -34,4 +34,10 @@ public class ErrorHandler {
         log.error("Server returned HttpCode 409: {}", e.getMessage(), e);
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(value = {Throwable.class})
+    public ResponseEntity<Map<String, String>> handleThrowable(final Throwable e) {
+        log.error("Server returned HttpCode 400: {}", e.getMessage(), e);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
 }

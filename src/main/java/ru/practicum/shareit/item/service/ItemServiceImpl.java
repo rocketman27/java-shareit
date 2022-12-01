@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
+import static ru.practicum.shareit.item.ItemMapper.toItemDto;
 
 @Service
 public class ItemServiceImpl implements ItemService {
-    private static long nextId = 1;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
@@ -38,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItemById(long itemId) {
         Optional<Item> item = itemRepository.getItemById(itemId);
         if (item.isPresent()) {
-            return ItemMapper.toItemDto(item.get());
+            return toItemDto(item.get());
         } else {
             throw new ItemNotFoundException(format("Item with userId=%s is not found", itemId));
         }
@@ -55,14 +55,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(long userId, ItemDto itemDto) {
-        Optional<User> owner = userRepository.getUserById(userId);
-        if (owner.isPresent()) {
-            itemDto.setId(nextId++);
-            Item item = ItemMapper.toItem(owner.get(), itemDto);
-            return ItemMapper.toItemDto(itemRepository.createItem(item));
-        } else {
-            throw new UserNotFoundException(format("Owner with userId=%s is not found", userId));
-        }
+        User owner = userRepository.getUserById(userId)
+                                   .orElseThrow(() -> new UserNotFoundException(format("Owner with userId=%s is not found", userId)));
+
+        return itemRepository.createItem(owner, itemDto);
     }
 
     @Override
@@ -88,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
                 }
             });
             itemRepository.updateItem(item.get());
-            return ItemMapper.toItemDto(item.get());
+            return toItemDto(item.get());
         } else {
             throw new ItemNotFoundException(format("Item with itemId=%s is not found", itemId));
         }
