@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validation.ValidEndDate;
 
 import javax.validation.constraints.Future;
@@ -19,17 +16,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(setterPrefix = "with")
 @ValidEndDate
-public class BookingDto {
+public class BookingDetailsDto {
     private long id;
-    @NotNull
-    private long itemId;
     @NotNull
     @FutureOrPresent
     private LocalDateTime start;
     @NotNull
     @Future
     private LocalDateTime end;
-    private Item item;
-    private User booker;
-    private BookingStatus status;
+    private long bookerId;
 }
