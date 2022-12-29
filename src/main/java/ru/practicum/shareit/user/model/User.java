@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @Table(name = "users", schema = "public")
 @DynamicUpdate
+@Builder(setterPrefix = "with")
 public class User {
     @Id
     @GeneratedValue(generator = "PK_USERS", strategy = GenerationType.IDENTITY)

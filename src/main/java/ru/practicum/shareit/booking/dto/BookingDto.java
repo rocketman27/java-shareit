@@ -1,12 +1,8 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.validation.ValidEndDate;
 
 import javax.validation.constraints.Future;
@@ -15,8 +11,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder(setterPrefix = "with")
 @ValidEndDate
 public class BookingDto {
@@ -30,6 +24,19 @@ public class BookingDto {
     @Future
     private LocalDateTime end;
     private Item item;
-    private User booker;
+    private Booker booker;
     private BookingStatus status;
+
+    @Data
+    @Builder(setterPrefix = "with")
+    public static class Item {
+        private long id;
+        private String name;
+    }
+
+    @Data
+    @Builder(setterPrefix = "with")
+    public static class Booker {
+        private long id;
+    }
 }

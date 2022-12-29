@@ -2,8 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingMapper;
-import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.mappers.BookingMapper;
+import ru.practicum.shareit.booking.repositories.BookingRepository;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static ru.practicum.shareit.booking.dto.BookingMapper.toBooking;
-import static ru.practicum.shareit.booking.dto.BookingMapper.toBookingDto;
+import static ru.practicum.shareit.booking.mappers.BookingMapper.toBooking;
+import static ru.practicum.shareit.booking.mappers.BookingMapper.toBookingDto;
 import static ru.practicum.shareit.booking.model.BookingStatus.*;
 
 @Service
