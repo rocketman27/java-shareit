@@ -6,38 +6,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.shareit.request.ItemRequest;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
+import java.time.LocalDateTime;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "items", schema = "public")
+@Table(name = "comments", schema = "public")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(setterPrefix = "with")
 @Getter
 @Setter
 @ToString
-public class Item {
+public class Comment {
     @Id
-    @GeneratedValue(generator = "PK_ITEMS", strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private long id;
-    private String name;
-    private String description;
-    @Column(name = "is_available")
-    private Boolean available;
-    @ManyToOne()
-    @JoinColumn(name = "owner_id")
-    private User owner;
-    @Transient
-    private ItemRequest request;
+    private String text;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item item;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private User author;
+    @CreationTimestamp
+    private LocalDateTime created;
 }

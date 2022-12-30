@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.OnCreate;
@@ -31,8 +32,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable long itemId) {
-        return itemService.getItemById(itemId);
+    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
+        return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping()
@@ -44,6 +45,12 @@ public class ItemController {
     public ItemDto createItem(@Validated(OnCreate.class) @RequestBody ItemDto itemDto,
                               @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemService.createItem(userId, itemDto);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@Validated(OnCreate.class) @RequestBody CommentDto commentDto,
+                                    @PathVariable long itemId, @RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemService.createComment(userId, itemId, commentDto);
     }
 
     @PatchMapping("/{itemId}")
