@@ -9,12 +9,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.user.UserController;
 
 import java.util.Map;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {ItemController.class, UserController.class, BookingController.class})
+@RestControllerAdvice(assignableTypes = {
+        ItemController.class,
+        UserController.class,
+        BookingController.class,
+        ItemRequestController.class
+})
 public class ErrorHandler {
 
     @ExceptionHandler(value = {EntityNotFoundException.class})
@@ -73,6 +79,12 @@ public class ErrorHandler {
 
     @ExceptionHandler(value = {CommentNotAllowedException.class})
     public ResponseEntity<Map<String, String>> handleCommentNotAllowedException(final CommentNotAllowedException e) {
+        log.error("Server returned HttpCode 400: {}", e.getMessage(), e);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {InvalidPageableParametersException.class})
+    public ResponseEntity<Map<String, String>> handleInvalidPageableParametersException(final InvalidPageableParametersException e) {
         log.error("Server returned HttpCode 400: {}", e.getMessage(), e);
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }

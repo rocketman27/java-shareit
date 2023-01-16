@@ -26,26 +26,38 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getItemById(@PathVariable long bookingId, @RequestHeader("X-Sharer-User-Id") long userId) {
+    public BookingDto getBookingById(@PathVariable long bookingId, @RequestHeader("X-Sharer-User-Id") long userId) {
         return bookingService.getBookingById(bookingId, userId);
     }
 
     @GetMapping()
-    public List<BookingDto> getAllItemsByBooker(@RequestParam(defaultValue = "ALL") String state,
-                                                @RequestHeader("X-Sharer-User-Id") long userId) {
-        return bookingService.getAllBookingsByBooker(state, userId);
+    public List<BookingDto> getAllBookingsByBooker(@RequestParam(defaultValue = "ALL") String state,
+                                                   @RequestHeader("X-Sharer-User-Id") long userId,
+                                                   @RequestParam(required = false) Integer from,
+                                                   @RequestParam(required = false) Integer size) {
+        if (from != null && size != null) {
+            return bookingService.getAllBookingsByBooker(state, userId, from, size);
+        } else {
+            return bookingService.getAllBookingsByBooker(state, userId);
+        }
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAllItemsByOwner(@RequestParam(defaultValue = "ALL") String state,
-                                                @RequestHeader("X-Sharer-User-Id") long userId) {
-        return bookingService.getAllBookingsByOwner(state, userId);
+    public List<BookingDto> getAllBookingsByOwner(@RequestParam(defaultValue = "ALL") String state,
+                                                  @RequestHeader("X-Sharer-User-Id") long userId,
+                                                  @RequestParam(required = false) Integer from,
+                                                  @RequestParam(required = false) Integer size) {
+        if (from != null && size != null) {
+            return bookingService.getAllBookingsByOwner(state, userId, from, size);
+        } else {
+            return bookingService.getAllBookingsByOwner(state, userId);
+        }
     }
 
 
     @PostMapping
-    public BookingDto createItem(@Validated @RequestBody BookingDto bookingDto,
-                                 @RequestHeader("X-Sharer-User-Id") long userId) {
+    public BookingDto createBooking(@Validated @RequestBody BookingDto bookingDto,
+                                    @RequestHeader("X-Sharer-User-Id") long userId) {
         return bookingService.createBooking(userId, bookingDto);
     }
 }

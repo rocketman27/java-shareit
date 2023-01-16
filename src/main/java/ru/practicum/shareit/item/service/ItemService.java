@@ -11,6 +11,8 @@ public interface ItemService {
 
     List<ItemDto> getAllItems(long userId);
 
+    List<ItemDto> getAllItems(long userId, int from, int size);
+
     ItemDto createItem(long userId, ItemDto itemDto);
 
     CommentDto createComment(long userId, long itemId, CommentDto commentDto);
@@ -18,4 +20,6 @@ public interface ItemService {
     ItemDto patchItem(long itemId, long userId, Map<String, Object> fields);
 
     List<ItemDto> searchItem(String text, long userId);
+
+    List<ItemDto> searchItem(String text, long userId, int from, int size);
 }

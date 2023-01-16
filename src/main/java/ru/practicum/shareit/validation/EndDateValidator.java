@@ -9,6 +9,10 @@ public class EndDateValidator implements ConstraintValidator<ValidEndDate, Booki
 
     @Override
     public boolean isValid(BookingDto booking, ConstraintValidatorContext constraintValidatorContext) {
-        return booking.getEnd().isAfter(booking.getStart());
+        if (booking.getEnd() != null && booking.getStart() != null) {
+            return booking.getEnd().isAfter(booking.getStart());
+        } else {
+            return false;
+        }
     }
 }

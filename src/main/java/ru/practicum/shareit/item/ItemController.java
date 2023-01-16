@@ -37,9 +37,17 @@ public class ItemController {
     }
 
     @GetMapping()
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllItems(userId);
+    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @RequestParam(required = false) Integer from,
+                                     @RequestParam(required = false) Integer size) {
+        if (from != null && size != null) {
+            return itemService.getAllItems(userId, from, size);
+        } else {
+            return itemService.getAllItems(userId);
+        }
     }
+
+
 
     @PostMapping
     public ItemDto createItem(@Validated(OnCreate.class) @RequestBody ItemDto itemDto,
@@ -54,14 +62,21 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto patchUser(@Validated(OnUpdate.class) @PathVariable long itemId,
+    public ItemDto patchItem(@Validated(OnUpdate.class) @PathVariable long itemId,
                              @RequestHeader("X-Sharer-User-Id") long userId,
                              @RequestBody Map<String, Object> fields) {
         return itemService.patchItem(itemId, userId, fields);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text, @RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.searchItem(text, userId);
+    public List<ItemDto> searchItem(@RequestParam String text,
+                                    @RequestHeader("X-Sharer-User-Id") long userId,
+                                    @RequestParam(required = false) Integer from,
+                                    @RequestParam(required = false) Integer size) {
+        if (from != null && size != null) {
+            return itemService.searchItem(text, userId, from, size);
+        } else {
+            return itemService.searchItem(text, userId);
+        }
     }
 }
