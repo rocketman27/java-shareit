@@ -14,6 +14,7 @@ public class ItemMapper {
                       .withName(item.getName())
                       .withDescription(item.getDescription())
                       .withAvailable(item.getAvailable())
+                      .withRequestId(item.getRequest() != null ? item.getRequest().getId() : 0)
                       .build();
     }
 
@@ -32,7 +33,6 @@ public class ItemMapper {
                               .withAuthorName(comment.getAuthor().getName())
                               .withCreated(comment.getCreated())
                               .build();
-
     }
 
     public static Item toItem(User owner, ItemDto itemDto) {

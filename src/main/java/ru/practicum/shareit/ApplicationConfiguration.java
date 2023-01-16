@@ -26,21 +26,13 @@ public class ApplicationConfiguration {
     @Autowired
     Environment environment;
 
-/*    @Bean
-    public DataSource dataSource() {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        return builder.setType(EmbeddedDatabaseType.H2)
-                      .setName("shareit")
-                      .build();
-    }*/
-
     @Bean
     public DataSource dataSource() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         return dataSourceBuilder.driverClassName(environment.getProperty("spring.datasource.driverClassName"))
                                 .url(environment.getProperty("spring.datasource.url"))
-                                .username("spring.datasource.username")
-                                .password("spring.datasource.password")
+                                .username(environment.getProperty("spring.datasource.username"))
+                                .password(environment.getProperty("spring.datasource.password"))
                                 .build();
     }
 

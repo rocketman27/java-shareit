@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.mappers.BookingMapper;
 import ru.practicum.shareit.booking.repositories.BookingRepository;
@@ -10,6 +13,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.ActionNotAllowedException;
 import ru.practicum.shareit.exceptions.BookingAlreadyApproved;
 import ru.practicum.shareit.exceptions.BookingNotFoundException;
+import ru.practicum.shareit.exceptions.InvalidPageableParametersException;
 import ru.practicum.shareit.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.exceptions.ItemUnavailableException;
 import ru.practicum.shareit.exceptions.UnsupportedStateException;
@@ -20,6 +24,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.EnumUtils;
+import ru.practicum.shareit.utils.PageableUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -132,11 +137,57 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<BookingDto> getAllBookingsByBooker(String status, long userId, int from, int size) {
+        if (PageableUtils.isInvalidFromAndSize(from, size)) {
+            throw new InvalidPageableParametersException("Invalid pageable parameters");
+        }
+
+        User booker = userRepository.findById(userId)
+                                    .orElseThrow(() -> new UserNotFoundException(
+                                            format("Booker with userId=%s is not found", userId))
+                                    );
+
+        return getBookingsByBooker(status, booker, PageRequest.of(from / size, size));
+    }
+
+    private List<BookingDto> getBookingsByBooker(String state, User booker, Pageable pageable) {
+        BookingState bookingState = EnumUtils.findEnumValue(BookingState.class, state);
+        Page<Booking> bookings;
+
+        switch (bookingState) {
+            case ALL:
+                bookings = bookingRepository.findByBookerOrderByStartDesc(booker, pageable);
+                break;
+            case PAST:
+                bookings = bookingRepository.findPastBookingsByBooker(booker, pageable);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findFutureBookingsByBooker(booker, pageable);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findCurrentBookingsByBooker(booker, pageable);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(booker, WAITING, pageable);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(booker, REJECTED, pageable);
+                break;
+            default:
+                throw new UnsupportedStateException("Unknown state: UNSUPPORTED_STATUS");
+        }
+
+        return bookings.stream()
+                       .map(BookingMapper::toBookingDto)
+                       .collect(Collectors.toList());
+    }
+
+    @Override
     public List<BookingDto> getAllBookingsByOwner(String state, long userId) {
         User owner = userRepository.findById(userId)
-                                    .orElseThrow(() -> new UserNotFoundException(
-                                            format("Owner with userId=%s is not found", userId))
-                                    );
+                                   .orElseThrow(() -> new UserNotFoundException(
+                                           format("Owner with userId=%s is not found", userId))
+                                   );
 
         return getBookingsByOwner(state, owner);
     }
@@ -163,6 +214,51 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByOwnerAndStatusOrderByStartDesc(owner, REJECTED);
+                break;
+            default:
+                throw new UnsupportedStateException("Unknown state: UNSUPPORTED_STATUS");
+        }
+
+        return bookings.stream()
+                       .map(BookingMapper::toBookingDto)
+                       .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BookingDto> getAllBookingsByOwner(String state, long userId, int from, int size) {
+        if (PageableUtils.isInvalidFromAndSize(from, size)) {
+           throw new InvalidPageableParametersException("Invalid pageable parameters");
+        }
+        User owner = userRepository.findById(userId)
+                                   .orElseThrow(() -> new UserNotFoundException(
+                                           format("Owner with userId=%s is not found", userId))
+                                   );
+
+        return getBookingsByOwner(state, owner, PageRequest.of(from / size, size));
+    }
+
+    private List<BookingDto> getBookingsByOwner(String state, User owner, Pageable pageable) {
+        BookingState bookingState = EnumUtils.findEnumValue(BookingState.class, state);
+        Page<Booking> bookings;
+
+        switch (bookingState) {
+            case ALL:
+                bookings = bookingRepository.findByOwnerOrderByStartDesc(owner, pageable);
+                break;
+            case PAST:
+                bookings = bookingRepository.findPastBookingsByOwner(owner, pageable);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findFutureBookingsByOwner(owner, pageable);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findCurrentBookingsByOwner(owner, pageable);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findByOwnerAndStatusOrderByStartDesc(owner, WAITING, pageable);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findByOwnerAndStatusOrderByStartDesc(owner, REJECTED, pageable);
                 break;
             default:
                 throw new UnsupportedStateException("Unknown state: UNSUPPORTED_STATUS");
